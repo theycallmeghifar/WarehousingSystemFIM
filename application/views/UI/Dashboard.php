@@ -68,7 +68,7 @@
 								<i class="nav-icon fas fa-columns"></i>
 							</div>
 							<p style="color:white;" class="small-box-footer">
-								<a href="<?php echo site_url('Rak') ?>" style="color:white">Lihat Rak<i class="fas fa-arrow-circle-right" style="color:white"></i></a>
+								<a href="<?php echo site_url('Rak') ?>" style="color:white">Lihat Rak <i class="fas fa-arrow-circle-right" style="color:white"></i></a>
 							</p>
 						</div>
 					</div>
@@ -85,7 +85,7 @@
 							<div class="icon">
 								<i class="nav-icon fas fa-archive"></i>
 							</div>
-							<a href="<?php echo site_url('Palet') ?>" class="small-box-footer">Lihat Palet<i class="fas fa-arrow-circle-right"></i></a>
+							<a href="<?php echo site_url('Palet') ?>" class="small-box-footer">Lihat Palet <i class="fas fa-arrow-circle-right"></i></a>
 						</div>
 					</div>
 					<div class="col-lg-3">
@@ -101,7 +101,7 @@
 							<div class="icon">
 								<i class="nav-icon fas fa-cube"></i>
 							</div>
-							<a href="<?php echo site_url('Barang') ?>" class="small-box-footer">Lihat Barang<i class="fas fa-arrow-circle-right"></i></a>
+							<a href="<?php echo site_url('Barang') ?>" class="small-box-footer">Lihat Barang <i class="fas fa-arrow-circle-right"></i></a>
 						</div>
 					</div>	
 				</div>
@@ -144,7 +144,7 @@
 							<div class="icon">
 								<i class="nav-icon fas fa-grip-horizontal"></i>
 							</div>
-							<a href="<?php echo site_url('Item') ?>" class="small-box-footer">Lihat Item<i class="fas fa-arrow-circle-right"></i></a>
+							<a href="<?php echo site_url('Item') ?>" class="small-box-footer">Lihat Item <i class="fas fa-arrow-circle-right"></i></a>
 						</div>
 					</div>
 				</div>

@@ -279,32 +279,32 @@
                         </p>
                     </a>
 
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                      <a href="<?php echo site_url('CetakBarangMasuk'); ?>" class="nav-link 
-                        <?= ($activePage == 'CetakBarangMasuk') ? 'active':''; ?>
-                        <?= ($activePage == 'ExportExcelMasukCon') ? 'active':'';?>
-                      ">
-                        <i class="nav-icon fas fa-arrow-down"></i>
-                        <p>
-                          Barang Masuk
-                        </p>
-                      </a>
-                  </li>
-                  <li class="nav-item">
-                      <a href="<?php echo site_url('CetakBarangKeluar'); ?>" class="nav-link 
-                        <?= ($activePage == 'CetakBarangKeluar') ? 'active':''; ?>
-                        <?= ($activePage == 'ExportExcelKeluarCon') ? 'active':'';?>
-                      ">
-                        <i class="nav-icon fas fa-arrow-up"></i>
-                        <p>
-                          Barang Keluar
-                        </p>
-                      </a>
-                  </li>
-                </ul>
+                  <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="<?php echo site_url('CetakBarangMasuk'); ?>" class="nav-link 
+                          <?= ($activePage == 'CetakBarangMasuk') ? 'active':''; ?>
+                          <?= ($activePage == 'ExportExcelMasukCon') ? 'active':'';?>
+                        ">
+                          <i class="nav-icon fas fa-arrow-down"></i>
+                          <p>
+                            Barang Masuk
+                          </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="<?php echo site_url('CetakBarangKeluar'); ?>" class="nav-link 
+                          <?= ($activePage == 'CetakBarangKeluar') ? 'active':''; ?>
+                          <?= ($activePage == 'ExportExcelKeluarCon') ? 'active':'';?>
+                        ">
+                          <i class="nav-icon fas fa-arrow-up"></i>
+                          <p>
+                            Barang Keluar
+                          </p>
+                        </a>
+                    </li>
+                  </ul>
 
-              </li>
+                </li>
               </ul>
           </li>
 

@@ -9,20 +9,24 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////ITEM
 
-    public function getItemMod()
+    public function getItemMod($warehouse)
     {
-      $query = $this->db->query(
-        "SELECT
-            itemCode, 
-            (case when itemCode = '' THEN '-' else itemName end) as itemName, 
-            jumlahItem,
-            netQuantity, 
-            status, 
-            createdBy, 
-            (case when createdDate = '0000-00-00 00:00:00' THEN '-' else createdDate end) as createdDate, 
-            modifiedBy, 
-            (case when modifiedDate = '0000-00-00 00:00:00' THEN '-' else modifiedDate end) as modifiedDate 
-        from item");
+      $sql = "
+          SELECT
+              itemCode, 
+              (CASE WHEN itemCode = '' THEN '-' ELSE itemName END) AS itemName, 
+              jumlahItem,
+              netQuantity, 
+              status, 
+              createdBy, 
+              (CASE WHEN createdDate = '0000-00-00 00:00:00' THEN '-' ELSE createdDate END) AS createdDate, 
+              modifiedBy, 
+              (CASE WHEN modifiedDate = '0000-00-00 00:00:00' THEN '-' ELSE modifiedDate END) AS modifiedDate
+          FROM item 
+          WHERE warehouse = ?
+      ";
+
+      $query = $this->db->query($sql, array($warehouse));
 
       return $query->result();
     }
@@ -38,6 +42,11 @@
         where itemCode = '".$id."' ");
 
       return $query->result();
+    }
+
+    public function getItemByCodeAndWarehouse($itemCode, $warehouse)
+    {
+        return $this->db->where('itemCode', $itemCode)->where('warehouse', $warehouse)->get($this->tableItem)->row_array();
     }
 
     public function saveItemMod($data)

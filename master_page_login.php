@@ -68,6 +68,10 @@
                             window.location.replace("<?php echo site_url('Dashboard') ?>");
                         } else if (obj.role == 1) {
                             window.location.replace("<?php echo site_url('Supplier') ?>");
+                        } else if (obj.role == 2) {
+                            window.location.replace("<?php echo site_url('Dandori') ?>");
+                        } else if (obj.role == 3) {
+                            window.location.replace("<?php echo site_url('Dandori') ?>");
                         }
                     } else {
                         txtMsg.style.color = "red";

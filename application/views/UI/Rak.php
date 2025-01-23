@@ -58,7 +58,6 @@
                               <th hidden="true">Modified By</th>
                               <th hidden="true">Modified Date</th>
                               <th hidden="true">Lemari Int</th>
-<!--                               <th hidden="true">Tipe Barang Int</th> -->
                               <th>Aksi</th>
                          </tr>
                       </thead>
@@ -99,7 +98,6 @@
                                 {
                                   echo "-";
                                 }?></td>
-<!--                             <td hidden="true"><?php echo $data->tipeBarang?></td> -->
                             <td>
                                 <a href="javascript:void(0);" class="fa fa-pencil-square-o color-muted editbtn" title="Ubah Data"></a>
                                 <a href="javascript:void(0);" class="fa fa-tasks color-muted detailbtn" title="Detail Data" style="margin-left: 25px;"></a>

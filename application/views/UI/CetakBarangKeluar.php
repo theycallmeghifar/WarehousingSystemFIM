@@ -1,6 +1,5 @@
 <?php ob_start();?>
 
-
 <!-- HEADER -->
 <!-- /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 
@@ -14,9 +13,16 @@
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item active">Menu</a></li>
+              <?php if ($this->session->userdata('role') == 0) { ?>
               <li class="breadcrumb-item active">Transaksi</li>
+              <?php } ?>
               <li class="breadcrumb-item active">Cetak Excel</li>
+              <?php if ($this->session->userdata('role') == 0) { ?>
               <li class="breadcrumb-item active">Barang Keluar</li>
+              <?php } ?>
+              <?php if ($this->session->userdata('role') == 2) { ?>
+              <li class="breadcrumb-item active">Item Keluar</li>
+              <?php } ?>
             </ol>
           </div>
         </div>
@@ -53,7 +59,7 @@
                   
                       <div class="form-group" style="margin-left: 20px;margin-top: 32px;">
                         <input type='submit' name='btnCari' value='Filter Data' class="btn btn-primary pull-right row-sm">
-                      </div>  
+                      </div>
                     
                       <div class="form-group" style="justify-content:flex-end;margin-left: 20px;margin-top: 32px;">
                         <input type='submit' name='export' value='Cetak Data' class="btn btn-success pull-right row-sm">
@@ -66,6 +72,7 @@
                 <table id="dataTable" data-order='[[0, "desc"]]' width='100%' class="display table-striped table" style='margin-top: 20px;'>
                     <thead>
                         <tr>
+                          <?php if ($this->session->userdata('role') == 0) { ?>
                           <th>ID</th>
                           <th>Tanggal</th>
                           <th>Main Item Code</th>
@@ -75,26 +82,52 @@
                           <th>whFrom</th>
                           <th>whTo</th>                        
                           <th>Qty</th>
+                          <?php } ?>
+                          <?php if ($this->session->userdata('role') == 2) { ?>
+                          <th>ID</th>
+                          <th>Item Code</th>
+                          <th>Item Name</th>
+                          <th>Jumlah</th>
+                          <th>Tanggal</th>
+                          <?php } ?>
                       </tr>
                     </thead>
-
-                  <?php
-                    foreach($getData as $data){
-                  ?>
-                      <tr>
-                        <td><?php echo $data->idHistory?></td>
-                        <td><?php echo date('Y-m-d H:i:s', strtotime($data->tanggal))?></td>
-                        <td><?php echo $data->mainItemCode?></td>
-                        <td><?php echo $data->mainItemName?></td>      
-                        <td><?php echo $data->itemCode?></td>
-                        <td><?php echo $data->itemName?></td>
-                        <td><?php echo $data->whFrom?></td>
-                        <td><?php echo $data->whTo?></td>
-                        <td><?php echo $data->qty?></td>
-                      </tr>
-                  <?php 
-                    } 
-                  ?>
+                    <tbody>
+                    <?php if ($this->session->userdata('role') == 0) { ?>
+                    <?php
+                      foreach($getData as $data){
+                    ?>
+                        <tr>
+                          <td><?php echo $data->idHistory?></td>
+                          <td><?php echo date('Y-m-d H:i:s', strtotime($data->tanggal))?></td>
+                          <td><?php echo $data->mainItemCode?></td>
+                          <td><?php echo $data->mainItemName?></td>      
+                          <td><?php echo $data->itemCode?></td>
+                          <td><?php echo $data->itemName?></td>
+                          <td><?php echo $data->whFrom?></td>
+                          <td><?php echo $data->whTo?></td>
+                          <td><?php echo $data->qty?></td>
+                        </tr>
+                    <?php 
+                      } 
+                    ?>
+                    <?php } ?>
+                    <?php if ($this->session->userdata('role') == 2) { ?>
+                      <?php
+                      foreach($getData as $data){
+                    ?>
+                        <tr>
+                          <td><?php echo $data->idHistory?></td>
+                          <td><?php echo $data->itemCode?></td>
+                          <td><?php echo $data->itemName?></td>
+                          <td><?php echo $data->jumlahKeluar?></td>
+                          <td><?php echo date('Y-m-d H:i:s', strtotime($data->tanggal))?></td>
+                        </tr>
+                    <?php 
+                      } 
+                    ?>
+                    <?php } ?>
+                    </tbody>
                 </table>
             </div>
       	  </div>
@@ -119,6 +152,14 @@ $data = ob_get_clean();
 
 <?php
     $script = ob_get_clean();
-    include('master_page.php');
+    
+    if ($this->session->userdata('role') == 0) {
+      include('master_page.php');
+    } elseif ($this->session->userdata('role') == 2) {
+      include('master_page_dandori.php');
+    } elseif ($this->session->userdata('role') == 3) {
+      include('master_page_operator.php');
+    }
+
     ob_flush();
 ?>

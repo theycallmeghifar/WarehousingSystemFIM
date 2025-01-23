@@ -6,40 +6,39 @@
 
   <div class="content-wrapper">
     <div class="content-header">
-    <!-- Alert Success -->
-<?php if ($this->session->flashdata('success')): ?>
-<div class="alert alert-success alert-dismissible fade show" role="alert" id="alert-success">
-    <?= $this->session->flashdata('success'); ?>
-    <button type="button" class="close" aria-label="Close" onclick="closeAlert('alert-success')">
-        <span aria-hidden="true">&times;</span>
-    </button>
-</div>
-<?php endif; ?>
-
-<!-- Alert Danger -->
-<?php if ($this->session->flashdata('error')): ?>
-<div class="alert alert-danger alert-dismissible fade show" role="alert" id="alert-danger">
-    <?= $this->session->flashdata('error'); ?>
-    <button type="button" class="close" aria-label="Close" onclick="closeAlert('alert-danger')">
-        <span aria-hidden="true">&times;</span>
-    </button>
-</div>
-<?php endif; ?>
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0">Item</h1>
-          </div><!-- /.col -->
-          <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item active">Menu</a></li>
-              <li class="breadcrumb-item active">Master Barang</li>
-              <li class="breadcrumb-item active">Item</li>
-            </ol>
-          </div>
+        <?php if ($this->session->flashdata('success')): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert" id="alert-success">
+            <?= $this->session->flashdata('success'); ?>
+            <button type="button" class="close" aria-label="Close" onclick="closeAlert('alert-success')">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
-      </div>
+        <?php endif; ?>
+        <?php if ($this->session->flashdata('error')): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" id="alert-danger">
+            <?= $this->session->flashdata('error'); ?>
+            <button type="button" class="close" aria-label="Close" onclick="closeAlert('alert-danger')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <?php endif; ?>
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Item</h1>
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item active">Menu</a></li>
+                    <?php if ($this->session->userdata('role') == 0): ?>
+                    <li class="breadcrumb-item active">Master Barang</li>
+                    <?php endif; ?>
+                    <li class="breadcrumb-item active">Item</li>
+                </ol>
+            </div>
+        </div>
     </div>
+</div>
 
     <section class="content">
       <div class="container-fluid">
@@ -52,94 +51,94 @@
 <!-- /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 
         <div class="col-lg-12">
-         <div class="card">
+            <div class="card">
 
-           <div class="card-header border-0">
-             <div class="d-flex justify-content-between">
-               <!-- <h3 class="card-title">Daftar Lemari</h3> -->
-             </div>
-                <button type="button" id="btnTambah" style="margin-top: 10px;" class="btn btn-primary pull-right" data-toggle="modal" data-target="#tambahData">Tambah Data</button>
-                <form id="formPrint" target="_blank" method="post" role="form" action="<?php echo site_url('Item/printQRCodeItemCon') ?>">
-                    <input hidden="true" id="txtPrint" name="listPrint" />
-                    <button class="btn btn-success pull-left" style="margin-top: 10px; margin-right: 5px;" id="btnPrint" type="button" class="btn btn-info">
-                         Print QR Code Item
+                <div class="card-header border-0">
+                    <div class="d-flex justify-content-between">
+                    <!-- <h3 class="card-title">Daftar Lemari</h3> -->
+                    </div>
+                    <button type="button" id="btnTambah" style="margin-top: 10px;" class="btn btn-primary pull-right" data-toggle="modal" data-target="#tambahData">Tambah Data</button>
+                    <form id="formPrint" target="_blank" method="post" role="form" action="<?php echo site_url('Item/printQRCodeItemCon') ?>">
+                        <input hidden="true" id="txtPrint" name="listPrint" />
+                        <button class="btn btn-success pull-left" style="margin-top: 10px; margin-right: 5px;" id="btnPrint" type="button" class="btn btn-info">
+                            Print QR Code Item
+                        </button>
+                    </form>
+                    <button id="btnCheck" type="button" onclick="check();" style="margin-top: 10px; margin-right: 5px;" class="btn btn-secondary pull-left">
+                        <i style="margin-right: 8px;" class="fas fa-minus-square"></i>Pilih Semua QR Code
                     </button>
-                </form>
-                <button id="btnCheck" type="button" onclick="check();" style="margin-top: 10px; margin-right: 5px;" class="btn btn-secondary pull-left">
-                    <i style="margin-right: 8px;" class="fas fa-minus-square"></i>Pilih Semua QR Code
-                </button>
-                <button id="btnUncheck" type="button" onclick="uncheck();" style="margin-top: 10px; margin-right: 5px;" class="btn btn-secondary pull-left">
-                    <i style="margin-right: 8px;" class="fas fa-times"></i>Batal Pilih Semua
-                </button>
+                    <button id="btnUncheck" type="button" onclick="uncheck();" style="margin-top: 10px; margin-right: 5px;" class="btn btn-secondary pull-left">
+                        <i style="margin-right: 8px;" class="fas fa-times"></i>Batal Pilih Semua
+                    </button>
 
-                <button id="show_all_records" type="button" style="margin-top: 10px; margin-right: 5px;" class="btn btn-info pull-left">
-                    <i style="margin-right: 8px;" class="fas fa-tasks"></i>Lihat Semua Data
-                </button>
-                <button id="restore_records" type="button" style="margin-top: 10px; margin-right: 5px;" class="btn btn-info pull-left">
-                    <i style="margin-right: 8px;" class="fas fa-times"></i>Reset Table
-                </button>
-           </div>
+                    <button id="show_all_records" type="button" style="margin-top: 10px; margin-right: 5px;" class="btn btn-info pull-left">
+                        <i style="margin-right: 8px;" class="fas fa-tasks"></i>Lihat Semua Data
+                    </button>
+                    <button id="restore_records" type="button" style="margin-top: 10px; margin-right: 5px;" class="btn btn-info pull-left">
+                        <i style="margin-right: 8px;" class="fas fa-times"></i>Reset Table
+                    </button>
+                </div>
 
-           <div class="row" style="margin-left:20px;">
-              </form>
-              <form id="formExportExcel" target="_blank" method="post" role="form" action="<?php echo site_url('Item/ExportExcelItemCon') ?>">
-                 <button class="btn btn-success pull-left" style="margin-right:5px;" id="btnExportExcel" type="submit">
-                  <i style="margin-right: 8px;" class="fas fa-arrow-up"></i>Export Excel
-                  </button>
-              </form>
-              <button class="btn btn-success pull-left" id="btnImport" type="button" class="btn btn-info" data-toggle="modal" data-target="#importData"><i style="margin-right: 8px;" class="fas fa-arrow-down"></i>Import Excel</button>
+                <div class="row" style="margin-left:20px;">
+                    </form>
+                    <form id="formExportExcel" target="_blank" method="post" role="form" action="<?php echo site_url('Item/ExportExcelItemCon') ?>">
+                        <button class="btn btn-success pull-left" style="margin-right:5px;" id="btnExportExcel" type="submit">
+                        <i style="margin-right: 8px;" class="fas fa-arrow-up"></i>Export Excel
+                        </button>
+                    </form>
+                    <button class="btn btn-success pull-left" id="btnImport" type="button" class="btn btn-info" data-toggle="modal" data-target="#importData"><i style="margin-right: 8px;" class="fas fa-arrow-down"></i>Import Excel</button>
+                    </div>
+
+                <div class="card-body">
+                    <table id="dataTable" class="display nowrap table-striped table" style="width:100%" >
+                        <thead>
+                            <tr>
+                                <th>Item Code</th>
+                                <th>Item Name</th>
+                                <th>Jumlah Item</th>
+                                <th>Net Quantity</th>
+                                <th>Status</th>
+                                <th hidden="true">Status Int</th>
+                                <th hidden="true">Created By</th>
+                                <th hidden="true">Created Date</th>
+                                <th hidden="true">Modified By</th>
+                                <th hidden="true">Modified Date</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                                foreach($getData as $data){
+                            ?>
+                            <tr>                             
+                                <td><?php echo $data->itemCode?></td>
+                                <td><?php echo $data->itemName?></td>
+                                <td><?php echo $data->jumlahItem?></td>
+                                <td><?php echo $data->netQuantity?></td>                        
+                                <td><?php if($data->status == 0){
+                                    echo "Tidak Aktif";
+                                    }else{ 
+                                    echo "Aktif";
+                                }?></td>
+                                <td hidden="true"><?php echo $data->status?></td>
+                                <td hidden="true"><?php echo $data->createdBy?></td>
+                                <td hidden="true"><?php echo $data->createdDate?></td>
+                                <td hidden="true"><?php echo $data->modifiedBy?></td>
+                                <td hidden="true"><?php echo $data->modifiedDate?></td>
+                                <td>
+                                    <input class='form-check-input' type='checkbox' id='checkPrint' value='<?php echo $data->itemCode?>'/>
+                                    <a href="javascript:void(0);" class="fa fa-pencil-square-o color-muted editbtn" title="Ubah Data" style="margin-left: 15px;"></a>
+                                    <a href="javascript:void(0);" class="fa fa-tasks color-muted detailbtn" title="Detail Data" style="margin-left: 15px;"></a>
+                                </td>
+                            </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <br/><br/><br/>
+
             </div>
-
-           <div class="card-body">
-                  <table id="dataTable" class="display nowrap table-striped table" style="width:100%" >
-                      <thead>
-                          <tr>
-                              <th>Item Code</th>
-                              <th>Item Name</th>
-                              <th>Jumlah Item</th>
-                              <th>Net Quantity</th>
-                              <th>Status</th>
-                              <th hidden="true">Status Int</th>
-                              <th hidden="true">Created By</th>
-                              <th hidden="true">Created Date</th>
-                              <th hidden="true">Modified By</th>
-                              <th hidden="true">Modified Date</th>
-                              <th>Action</th>
-                         </tr>
-                      </thead>
-                      <tbody>
-                        <?php
-                            foreach($getData as $data){
-                        ?>
-                        <tr>                             
-                            <td><?php echo $data->itemCode?></td>
-                            <td><?php echo $data->itemName?></td>
-                            <td><?php echo $data->jumlahItem?></td>
-                            <td><?php echo $data->netQuantity?></td>                        
-                            <td><?php if($data->status == 0){
-                                  echo "Tidak Aktif";
-                                }else{ 
-                                  echo "Aktif";
-                            }?></td>
-                            <td hidden="true"><?php echo $data->status?></td>
-                            <td hidden="true"><?php echo $data->createdBy?></td>
-                            <td hidden="true"><?php echo $data->createdDate?></td>
-                            <td hidden="true"><?php echo $data->modifiedBy?></td>
-                            <td hidden="true"><?php echo $data->modifiedDate?></td>
-                            <td>
-                                <input class='form-check-input' type='checkbox' id='checkPrint' value='<?php echo $data->itemCode?>'/>
-                                <a href="javascript:void(0);" class="fa fa-pencil-square-o color-muted editbtn" title="Ubah Data" style="margin-left: 15px;"></a>
-                                <a href="javascript:void(0);" class="fa fa-tasks color-muted detailbtn" title="Detail Data" style="margin-left: 15px;"></a>
-                            </td>
-                          </tr>
-                          <?php } ?>
-                      </tbody>
-                  </table>
-           </div>
-
-           <br/><br/><br/>
-
-         </div>
         </div>
 
 <!-- /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
@@ -231,7 +230,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                            <button type="submit" id="submit" name="submit" class="btn btn-primary shadow-sm">Tambah</button>
+                            <button type="submit" id="submit" name="submit" class="btn btn-primary shadow-sm">Import</button>
                         </div>
                     </div>
                 </form>
@@ -624,19 +623,17 @@ $data = ob_get_clean();
                     icon: 'warning'
                 });
 
-                // Reset file input agar tidak ada file yang terpilih
                 fileInput.value = ''; 
             }
         });
 
-        // Menambahkan validasi saat form disubmit
         document.getElementById('importForm').addEventListener('submit', function(event) {
             const fileInput = document.getElementById('file');
             const allowedExtensions = ['xlsx', 'xls'];
             const fileName = fileInput.value.split('.').pop().toLowerCase();
 
             if (fileInput.value === '' || !allowedExtensions.includes(fileName)) {
-                event.preventDefault(); // Cegah form submit jika file tidak valid
+                event.preventDefault();
                 Swal.fire({
                     title: 'File tidak valid',
                     text: 'Silakan pilih file dengan format .xlsx atau .xls.',
@@ -657,6 +654,14 @@ $data = ob_get_clean();
 
 <?php
 $script = ob_get_clean();
-include('master_page.php');
+
+if ($this->session->userdata('role') == 0) {
+    include('master_page.php');
+} elseif ($this->session->userdata('role') == 2) {
+    include('master_page_dandori.php');
+} else {
+    redirect(site_url('Login'));
+}
+
 ob_flush();
 ?>

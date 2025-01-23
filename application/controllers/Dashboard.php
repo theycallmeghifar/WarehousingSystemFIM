@@ -28,7 +28,8 @@
       $data["dash_palet"] = $this->model_Dashboard->getPaletMod();
       $data["dash_barang"] = $this->model_Dashboard->getBarangMod();
       $data["dash_mainitem"] = $this->model_Dashboard->getMainItemMod();
-      $data["dash_item"] = $this->model_Dashboard->getItemMod();
+      $userSession = $this->session->userdata();
+      $data["dash_item"] = $this->model_Dashboard->getItemMod(100);
 
       $this->load->view('UI/Dashboard', $data);
     }

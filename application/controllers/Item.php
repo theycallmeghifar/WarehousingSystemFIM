@@ -17,7 +17,7 @@
       if (!$this->session->userdata('idUser')) {
         redirect(site_url('Login'));
       } else {
-          if ($this->session->userdata('role') != 0) {    // kalo bukan admin
+          if ($this->session->userdata('role') != 0 && $this->session->userdata('role') != 2) {    // kalo bukan admin
               redirect(site_url('Login'));
           }
       }
@@ -27,26 +27,57 @@
 
     public function index()
     {
-      $getData["getData"] = $this->model_Item->getItemMod();
-      $this->load->view('UI/Item', $getData);
+        $userSession = $this->session->userdata();
+        
+        $warehouse = 100;
+
+        if (isset($userSession['role'])) {
+            if ($userSession['role'] == 0) {
+                $warehouse = 100;
+            } elseif ($userSession['role'] == 2) {
+                $warehouse = 115;
+            }
+        }
+
+        $getData["getData"] = $this->model_Item->getItemMod($warehouse);
+        $this->load->view('UI/Item', $getData);
     }
 
     public function saveItemCon()
     {
         date_default_timezone_set('Asia/Jakarta');
 
-        $data = array (
-          
-                'itemCode' => strtoupper($this->input->post('itemCode')),
-                'itemName' => strtoupper($this->input->post('itemName')),
-                'jumlahItem' => $this->input->post('jumlahItem'),
-                'netQuantity' => $this->input->post('netQuantity'),
-                'status' => 1,
-                'createdBy' => '',
-                'createdDate' => date("Y-m-d H:i:s")
-            );
+        $itemCode = strtoupper($this->input->post('itemCode'));
+        $existData = $this->model_Item->getItemQrMod($itemCode);
+        if ($existData != null) {
+            $this->session->set_flashdata('error', "ItemCode '$itemCode' sudah ada di database dan tidak boleh duplikat.");
+            redirect(base_url('./Item'));
+            return;
+        }
+        
+        $userSession = $this->session->userdata();
+        $warehouse = 100;
+        if (isset($userSession['role'])) {
+            if ($userSession['role'] == 0) {
+                $warehouse = 100;
+            } elseif ($userSession['role'] == 2) {
+                $warehouse = 115;
+            }
+        }
+
+        $data = array(
+            'itemCode' => $itemCode,
+            'itemName' => strtoupper($this->input->post('itemName')),
+            'jumlahItem' => $this->input->post('jumlahItem'),
+            'netQuantity' => $this->input->post('netQuantity'),
+            'warehouse' => $warehouse,
+            'status' => 1,
+            'createdBy' => isset($userSession['username']) ? $userSession['username'] : '',
+            'createdDate' => date("Y-m-d H:i:s")
+        );
 
         $insert = $this->model_Item->saveItemMod($data);
+
         redirect(base_url('./Item'));
     }
 
@@ -107,15 +138,31 @@
 
     public function ExportExcelItemCon()
     {
-        $getData = $this->model_Item->getItemMod();
+        $userSession = $this->session->userdata();
         
+        $warehouse = 100;
+
+        if (isset($userSession['role'])) {
+            if ($userSession['role'] == 0) {
+                $warehouse = 100;
+            } elseif ($userSession['role'] == 2) {
+                $warehouse = 115;
+            }
+        }
+
+        $getData["getData"] = $this->model_Item->getItemMod($warehouse);
+
+        if (empty($getData["getData"])) {
+            log_message('error', 'Tidak ada data ditemukan untuk warehouse: ' . $warehouse);
+            echo 'Tidak ada data untuk di-export.';
+            return;
+        }
+
         $object = new PHPExcel();
         $object->setActiveSheetIndex(0);
-        
+
         $table_columns = ["Item Code", "Item Name", "Jumlah Item", "Net Quantity", "Status"];
         $column = 0;
-
-        // Set header columns and style
         foreach ($table_columns as $field) {
             $object->getActiveSheet()->setCellValueByColumnAndRow($column, 1, $field);
             $object->getActiveSheet()->getStyle('A:E')->getFont()->setSize(11);
@@ -133,22 +180,21 @@
                     ),
                 )
             );
-            
             $object->getActiveSheet()->getColumnDimensionByColumn($column)->setAutoSize(true);
-
             $column++;
         }
-        
-        // Set data
+
         $excel_row = 2;
-        foreach ($getData as $data) {
-            $status = ($data->status == 0) ? "Tidak Aktif" : "Aktif";
-            $object->getActiveSheet()->setCellValueByColumnAndRow(0, $excel_row, $data->itemCode);
-            $object->getActiveSheet()->setCellValueByColumnAndRow(1, $excel_row, $data->itemName);
-            $object->getActiveSheet()->setCellValueByColumnAndRow(2, $excel_row, $data->jumlahItem);
-            $object->getActiveSheet()->setCellValueByColumnAndRow(3, $excel_row, $data->netQuantity);
-            $object->getActiveSheet()->setCellValueByColumnAndRow(4, $excel_row, $status);
-            $excel_row++;
+        foreach ($getData["getData"] as $data) {
+            if (isset($data->status)) {
+                $status = ($data->status == 0) ? "Tidak Aktif" : "Aktif";
+                $object->getActiveSheet()->setCellValueByColumnAndRow(0, $excel_row, $data->itemCode);
+                $object->getActiveSheet()->setCellValueByColumnAndRow(1, $excel_row, $data->itemName);
+                $object->getActiveSheet()->setCellValueByColumnAndRow(2, $excel_row, $data->jumlahItem);
+                $object->getActiveSheet()->setCellValueByColumnAndRow(3, $excel_row, $data->netQuantity);
+                $object->getActiveSheet()->setCellValueByColumnAndRow(4, $excel_row, $status);
+                $excel_row++;
+            }
         }
 
         date_default_timezone_set('Asia/Jakarta');
@@ -161,6 +207,18 @@
     
     public function importExcelItemCon()
     {
+        $userSession = $this->session->userdata();
+        
+        $warehouse = 100;
+
+        if (isset($userSession['role'])) {
+            if ($userSession['role'] == 0) {
+                $warehouse = 100;
+            } elseif ($userSession['role'] == 2) {
+                $warehouse = 115;
+            }
+        }
+
         date_default_timezone_set('Asia/Jakarta');
         if (isset($_FILES['file'])) {
             $uploadDir = 'uploads/';
@@ -183,7 +241,7 @@
 
                     $missingItemCodes = [];
                     foreach ($itemCodesFromExcel as $itemCode) {
-                        $existData = $this->model_Item->getItemQrMod($itemCode);
+                        $existData = $this->model_Item->getItemByCodeAndWarehouse($itemCode, $warehouse);
                         if ($existData == null) {
                             $missingItemCodes[] = $itemCode;
                         }
@@ -206,13 +264,14 @@
                             'jumlahItem'  => $row[2],
                             'netQuantity' => $row[3],
                             'status'      => ($row[4] == "Aktif") ? 1 : 0,
-                            'modifiedBy'  => '',
+                            'modifiedBy'  => isset($userSession['username']) ? $userSession['username'] : '',
                             'modifiedDate'=> date("Y-m-d H:i:s"),
                         );
                         $this->model_Item->updateItemMod($tempData);
                     }
 
                     $this->session->set_flashdata('success', 'Data berhasil diimport!');
+                    unlink($filePath);
                     redirect(base_url('./Item'));
                 } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
                     echo $e->getMessage();
@@ -223,6 +282,12 @@
         } else {
             echo "Tidak ada file yang diunggah.";
         }
+    }
+
+    public function getSessionData()
+    {
+        $sessionData = $this->session->userdata();
+        echo json_encode($sessionData);
     }
   }
 ?>

@@ -14,7 +14,7 @@
       if (!$this->session->userdata('idUser')) {
         redirect(site_url('Login'));
       } else {
-          if ($this->session->userdata('role') != 0) {    // kalo bukan admin
+          if ($this->session->userdata('role') != 0 && $this->session->userdata('role') != 2 && $this->session->userdata('role') != 3) {
               redirect(site_url('Login'));
           }
       }
@@ -24,60 +24,94 @@
 
     public function index()
     {
-        $fromDate = $this->input->post('fromDate');
-        $endDate = $this->input->post('endDate');
+      $userSession = $this->session->userdata();
 
-        if($fromDate || $endDate != '')
-        {
+      $fromDate = $this->input->post('fromDate');
+      $endDate = $this->input->post('endDate');
+
+      if($fromDate || $endDate != '') {
+        if ($userSession['role'] == 0) {
           $getData["getData"] = $this->model_HistoryBarang->getFilterTanggalMasukMod($fromDate, $endDate);
-        } 
-        else 
-        {
-          $getData["getData"] = $this->model_HistoryBarang->getCetakExcelMasukMod();       
+        } else {
+          $getData["getData"] = $this->model_HistoryBarang->getFilterTanggalItemMasukMod($fromDate, $endDate);
         }
-        $this->load->view('UI/CetakBarangMasuk', $getData);
+      } else {
+        if ($userSession['role'] == 0) {
+          $getData["getData"] = $this->model_HistoryBarang->getCetakExcelMasukMod();
+        } else {
+          $getData["getData"] = $this->model_HistoryBarang->getItemMasukMod();
+        }
+      }
+      $this->load->view('UI/CetakBarangMasuk', $getData);
     }
 
-    public function ExportExcelMasukCon(){
+    public function ExportExcelMasukCon() {
+      $userSession = $this->session->userdata();
+
       $fromDate = $this->input->post('fromDate');
       $endDate = $this->input->post('endDate');
       $endDate = date('Y-m-d H:i:s', strtotime($endDate . ' +1 day'));
 
       if (!empty($_POST['btnCari'])) 
       {
-          if($fromDate || $endDate != ''){
-              $getData["getData"] = $this->model_HistoryBarang->getFilterTanggalMasukMod($fromDate, $endDate);
+          if($fromDate || $endDate != '') {
+              if ($userSession['role'] == 0) {
+                $getData["getData"] = $this->model_HistoryBarang->getFilterTanggalMasukMod($fromDate, $endDate);
+              } else {
+                $getData["getData"] = $this->model_HistoryBarang->getFilterTanggalItemMasukMod($fromDate, $endDate);
+              }
           } 
           else {
-              $getData["getData"] = $this->model_HistoryBarang->getCetakExcelMasukMod();       
+              if ($userSession['role'] == 0) {
+                $getData["getData"] = $this->model_HistoryBarang->getCetakExcelMasukMod();
+              } else {
+                $getData["getData"] = $this->model_HistoryBarang->getItemMasukMod();
+              }
           }
           $this->load->view('UI/CetakBarangMasuk', $getData);
       }
-      else if (!empty($_POST['export'])) 
+      else if (!empty($_POST['export']))
       {
           if($fromDate || $endDate != ''){
-              $getData = $this->model_HistoryBarang->getFilterTanggalMasukMod($fromDate, $endDate);
-              $this->model_HistoryBarang->updateFilterTanggalMasukMod($fromDate, $endDate);          
+              if ($userSession['role'] == 0) {
+                $getData = $this->model_HistoryBarang->getFilterTanggalMasukMod($fromDate, $endDate);
+                $this->model_HistoryBarang->updateFilterTanggalMasukMod($fromDate, $endDate); 
+              } else {
+                $getData = $this->model_HistoryBarang->getFilterTanggalItemMasukMod($fromDate, $endDate);
+                $this->model_HistoryBarang->updateHistoryItemMasukFilterTanggalMod($fromDate, $endDate); 
+              }
           } 
           else {
-              $this->model_HistoryBarang->updateCetakExcelMasukMod();   
-              $getData = $this->model_HistoryBarang->getCetakExcelMasukMod();         
+              if ($userSession['role'] == 0) {
+                $this->model_HistoryBarang->updateCetakExcelMasukMod();
+                $getData["getData"] = $this->model_HistoryBarang->getCetakExcelMasukMod();
+              } else {
+                $this->model_HistoryBarang->updateHistoryItemMasukMod();
+                $getData["getData"] = $this->model_HistoryBarang->getItemMasukMod();
+              }
           }
           
           $object = new PHPExcel();
           $object->setActiveSheetIndex(0);
 
-          $table_columns = array("Purchase Order", "Delivery Note", "Tanggal", "Item Code", "Item Name", "whFrom", "whTo", "Qty");
+          if ($userSession['role'] == 0) {  
+            $table_columns = array("Purchase Order", "Delivery Note", "Tanggal", "Item Code", "Item Name", "whFrom", "whTo", "Qty");
+            $range = 'A1:H1';
+          } else {  
+            $table_columns = array("Item Code", "Item Name", "Jumlah", "Tanggal");
+            $range = 'A1:D1';
+          }
+
           $column = 0;
 
           foreach($table_columns as $field)
           {
               $object->getActiveSheet()->setCellValueByColumnAndRow($column, 1, $field);
               $object->getActiveSheet()->getStyle('A:H')->getFont()->setSize(11);
-              $object->getActiveSheet()->getStyle('A1:H1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+              $object->getActiveSheet()->getStyle($range)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
               $object->getActiveSheet()->getStyle('A')->getNumberFormat()->setFormatCode( PHPExcel_Style_NumberFormat::FORMAT_TEXT );
               $object->getActiveSheet()->getStyle('B')->getNumberFormat()->setFormatCode( PHPExcel_Style_NumberFormat::FORMAT_NUMBER );
-              $object->getActiveSheet()->getStyle('A1:H1')->applyFromArray(
+              $object->getActiveSheet()->getStyle($range)->applyFromArray(
                 array(
                     'fill' => array(
                         'type' => PHPExcel_Style_Fill::FILL_SOLID,
@@ -97,6 +131,7 @@
           
           foreach($getData as $data)
           {
+            if ($userSession['role'] == 0) {
               $object->getActiveSheet()->setCellValueByColumnAndRow(0, $excel_row, $data->purchaseOrder)->getColumnDimension('A')->setWidth(20);
               $object->getActiveSheet()->setCellValueByColumnAndRow(1, $excel_row, $data->deliveryNote)->getColumnDimension('B')->setWidth(20);           
               $object->getActiveSheet()->setCellValueByColumnAndRow(2, $excel_row, $data->tanggal)->getColumnDimension('C')->setWidth(20);
@@ -105,17 +140,22 @@
               $object->getActiveSheet()->setCellValueByColumnAndRow(5, $excel_row, $data->whFrom)->getColumnDimension('F')->setWidth(18);
               $object->getActiveSheet()->setCellValueByColumnAndRow(6, $excel_row, $data->whTo)->getColumnDimension('G')->setWidth(15);
               $object->getActiveSheet()->setCellValueByColumnAndRow(7, $excel_row, $data->qty)->getColumnDimension('H')->setWidth(15);
+            } else {
+              $object->getActiveSheet()->setCellValueByColumnAndRow(0, $excel_row, $data->itemCode)->getColumnDimension('A')->setWidth(25);
+              $object->getActiveSheet()->setCellValueByColumnAndRow(1, $excel_row, $data->itemName)->getColumnDimension('B')->setWidth(30);
+              $object->getActiveSheet()->setCellValueByColumnAndRow(2, $excel_row, $data->jumlahMasuk)->getColumnDimension('C')->setWidth(18);
+              $object->getActiveSheet()->setCellValueByColumnAndRow(3, $excel_row, $data->tanggal)->getColumnDimension('D')->setWidth(25);
+            }
               $excel_row++;
           }
   
           date_default_timezone_set('Asia/Jakarta');
-          $fileName = "HistoryBarangMasuk_" . date('Y-m-d H:i:s') . ".xls";
+          $fileName = ($userSession['role'] == 0 ? "HistoryBarangMasuk_" : "HistoryItemMasuk_") . str_replace(':', '_', date('Y-m-d H:i:s')) . ".xls";
 
           $object_writer = PHPExcel_IOFactory::createWriter($object, 'Excel5');
           header("Content-Type: application/vnd.ms-excel"); 
           header("Content-Disposition: attachment; filename=\"$fileName\""); 
           $object_writer->save('php://output');
-
         }
     }
 

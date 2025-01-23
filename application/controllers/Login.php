@@ -47,6 +47,8 @@
                         $role = $d->role;
                         if ($role == 0) $msg = "Selamat datang Administrator";
                         else if ($role == 1) $msg = "Selamat datang Supplier";
+                        else if ($role == 2) $msg = "Selamat datang Administrator Dandori";
+                        else if ($role == 3) $msg = "Selamat datang Operator Dandori";
                         $session = array(
                             'idUser' => $d->idUser,
                             'role' => $d->role,

@@ -34,7 +34,7 @@
             (case when createdDate = '0000-00-00 00:00:00' THEN '-' else createdDate end) as createdDate, 
             modifiedBy, 
             (case when modifiedDate = '0000-00-00 00:00:00' THEN '-' else modifiedDate end) as modifiedDate 
-        from historybarang");
+        from historybarang WHERE warehouse = 100");
 
       return $query->result();
     }
@@ -65,7 +65,7 @@
             (case when createdDate = '0000-00-00 00:00:00' THEN '-' else createdDate end) as createdDate, 
             modifiedBy, 
             (case when modifiedDate = '0000-00-00 00:00:00' THEN '-' else modifiedDate end) as modifiedDate 
-        from historybarang where status = '".$status."' ");
+        from historybarang where status = '".$status."' AND warehouse = 100");
 
       return $query->result();
     }
@@ -107,7 +107,7 @@
       INNER join item as m
       on h.itemCode = m.itemCode
       
-      where h.status=0 and h.jumlahMasuk!=0 GROUP BY h.idHistory"
+      where h.warehouse = 100 and h.status=0 and h.jumlahMasuk!=0 GROUP BY h.idHistory"
       );
 
       return $query->result();
@@ -144,11 +144,10 @@
       INNER join item as m
       on h.itemCode = m.itemCode
       
-      where h.status = 0 AND h.tanggal between '".$fromDate."' and '".$endDate."' and h.jumlahMasuk != 0 GROUP BY h.idHistory");
+      where h.warehouse = 100 and h.status = 0 AND h.tanggal between '".$fromDate."' and '".$endDate."' and h.jumlahMasuk != 0 GROUP BY h.idHistory");
 
       return $query->result();
     }
-
 
     public function updateCetakExcelMasukMod()
     {
@@ -184,7 +183,7 @@
                 INNER join item as m
                 on h.itemCode = m.itemCode
 
-                where h.status = 0 and h.jumlahMasuk!=0 GROUP BY h.idHistory
+                where h.warehouse = 100 and h.status = 0 and h.jumlahMasuk!=0 GROUP BY h.idHistory
         ) as temp
                 
         SET status=2 where t.idHistory = temp.idHistory");
@@ -226,7 +225,7 @@
                 INNER join item as m
                 on h.itemCode = m.itemCode
 
-              where h.status = 0 AND h.tanggal between '".$fromDate."' and '".$endDate."' and h.jumlahMasuk!=0 GROUP BY h.idHistory
+              where h.warehouse = 100 and h.status = 0 AND h.tanggal between '".$fromDate."' and '".$endDate."' and h.jumlahMasuk!=0 GROUP BY h.idHistory
         ) as temp
                 
         SET status=2 where t.idHistory = temp.idHistory");
@@ -270,8 +269,7 @@
           INNER JOIN item as i
           on h.itemCode = i.itemCode
           
-          where h.status=0 and h.jumlahMasuk=0 GROUP BY h.idHistory"
-       
+          where h.warehouse = 100 and h.status = 0 and h.jumlahMasuk = 0 GROUP BY h.idHistory"
        );
  
        return $query->result();
@@ -310,11 +308,11 @@
        INNER JOIN item as i
        on h.itemCode = i.itemCode
        
-       where h.status = 0 AND h.tanggal between '".$fromDate."' and '".$endDate."' and h.jumlahMasuk=0 GROUP BY h.idHistory");
+       where h.warehouse = 100 and h.status = 0 AND h.tanggal between '".$fromDate."' and '".$endDate."' and h.jumlahMasuk = 0 GROUP BY h.idHistory"
+       );
  
        return $query->result();
      }
- 
  
      public function updateCetakExcelKeluarMod()
      {
@@ -352,7 +350,7 @@
                  INNER JOIN item as i
                  on h.itemCode = i.itemCode
  
-                 where h.status = 0 and h.jumlahMasuk=0 GROUP BY h.idHistory
+                 where h.warehouse = 100 and h.status = 0 and h.jumlahMasuk=0 GROUP BY h.idHistory
          ) as temp
                  
          SET status=2 where t.idHistory = temp.idHistory");
@@ -396,13 +394,169 @@
                  INNER JOIN item as i
                  on h.itemCode = i.itemCode
  
-               where h.status = 0 AND h.tanggal between '".$fromDate."' and '".$endDate."' and h.jumlahMasuk=0 GROUP BY h.idHistory
+               where h.warehouse = 100 and h.status = 0 AND h.tanggal between '".$fromDate."' and '".$endDate."' and h.jumlahMasuk=0 GROUP BY h.idHistory
          ) as temp
                  
          SET status=2 where t.idHistory = temp.idHistory");
          
        //return $query->result();
      }
+
+     ///////////////////////////////////////////////////////////////////////////////////////////////////////////ITEM MASUK
+     public function getItemMasukMod()
+     {
+       $query = $this->db->query(
+         "SELECT DISTINCT
+             h.idHistory, 
+             h.itemCode,
+             i.itemName,
+             h.jumlahMasuk,
+             h.tanggal
+             from historybarang as h
+         INNER JOIN item as i
+         on h.itemCode = i.itemCode
+         where h.warehouse = 115 and h.status = 0 and h.jumlahKeluar = 0 GROUP BY h.idHistory"
+       );
+ 
+       return $query->result();
+     }
+ 
+     public function getFilterTanggalItemMasukMod($fromDate, $endDate)
+     {
+       $query = $this->db->query(
+         "SELECT DISTINCT
+             h.idHistory, 
+             h.itemCode,
+             i.itemName,
+             h.jumlahMasuk,
+             h.tanggal
+             from historybarang as h
+         INNER JOIN item as i
+         on h.itemCode = i.itemCode
+         
+         where h.warehouse = 115 AND h.tanggal between '".$fromDate."' AND '".$endDate."' AND h.status = 0 and h.jumlahKeluar = 0 GROUP BY h.idHistory"
+       );
+ 
+       return $query->result();
+     }
+ 
+     public function updateHistoryItemMasukMod() {
+       $query = $this->db->query(
+         "UPDATE historybarang as t,	
+         (
+           SELECT DISTINCT
+               h.idHistory, 
+               h.itemCode,
+               i.itemName,
+               h.jumlahMasuk,
+               h.tanggal
+               from historybarang as h
+           INNER JOIN item as i
+           on h.itemCode = i.itemCode
+           where h.warehouse = 115 and h.status = 0 and h.jumlahKeluar = 0 GROUP BY h.idHistory
+         ) as temp
+  
+         SET status = 2 where t.idHistory = temp.idHistory"
+         );
+     }
+     
+     public function updateHistoryItemMasukFilterTanggalMod($fromDate, $endDate) {
+       $query = $this->db->query(
+         "UPDATE historybarang as t,	
+         (
+           SELECT DISTINCT
+               h.idHistory, 
+               h.itemCode,
+               i.itemName,
+               h.jumlahMasuk,
+               h.tanggal
+               from historybarang as h
+           INNER JOIN item as i
+           on h.itemCode = i.itemCode
+           where h.warehouse = 115 AND h.tanggal between '".$fromDate."' AND '".$endDate."' AND h.status = 0 and h.jumlahKeluar = 0 GROUP BY h.idHistory
+         ) as temp
+   
+         SET status = 2 where t.idHistory = temp.idHistory"
+         );
+     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////ITEM KELUAR
+    public function getItemKeluarMod()
+    {
+      $query = $this->db->query(
+        "SELECT DISTINCT
+            h.idHistory, 
+            h.itemCode,
+            i.itemName,
+            h.jumlahKeluar,
+            h.tanggal
+            from historybarang as h
+        INNER JOIN item as i
+        on h.itemCode = i.itemCode
+        where h.warehouse = 115 and h.status = 0 and h.jumlahMasuk = 0 GROUP BY h.idHistory"
+      );
+
+      return $query->result();
+    }
+
+    public function getFilterTanggalItemKeluarMod($fromDate, $endDate)
+    {
+      $query = $this->db->query(
+        "SELECT DISTINCT
+            h.idHistory, 
+            h.itemCode,
+            i.itemName,
+            h.jumlahKeluar,
+            h.tanggal
+            from historybarang as h
+        INNER JOIN item as i
+        on h.itemCode = i.itemCode
+        
+        where h.warehouse = 115 AND h.tanggal between '".$fromDate."' AND '".$endDate."' AND h.status = 0 and h.jumlahMasuk = 0 GROUP BY h.idHistory"
+      );
+
+      return $query->result();
+    }
+
+    public function updateHistoryItemKeluarMod() {
+      $query = $this->db->query(
+        "UPDATE historybarang as t,	
+        (
+          SELECT DISTINCT
+              h.idHistory, 
+              h.itemCode,
+              i.itemName,
+              h.jumlahKeluar,
+              h.tanggal
+              from historybarang as h
+          INNER JOIN item as i
+          on h.itemCode = i.itemCode
+          where h.warehouse = 115 and h.status = 0 and h.jumlahMasuk = 0 GROUP BY h.idHistory
+        ) as temp
+ 
+        SET status = 2 where t.idHistory = temp.idHistory"
+        );
+    }
+    
+    public function updateHistoryItemKeluarFilterTanggalMod($fromDate, $endDate) {
+      $query = $this->db->query(
+        "UPDATE historybarang as t,	
+        (
+          SELECT DISTINCT
+              h.idHistory, 
+              h.itemCode,
+              i.itemName,
+              h.jumlahKeluar,
+              h.tanggal
+              from historybarang as h
+          INNER JOIN item as i
+          on h.itemCode = i.itemCode
+          where h.warehouse = 115 AND h.tanggal between '".$fromDate."' AND '".$endDate."' AND h.status = 0 and h.jumlahMasuk = 0 GROUP BY h.idHistory
+        ) as temp
+  
+        SET status = 2 where t.idHistory = temp.idHistory"
+        );
+    }
 
     /** Mengembalikan tabel data fk **/
     public function getAllPaletMod()

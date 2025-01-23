@@ -40,7 +40,7 @@
       }
       else
       {
-        $getData["getData"] = $this->model_HistoryBarang->getFilterHistoryBarangMod($status);  
+        $getData["getData"] = $this->model_HistoryBarang->getFilterHistoryBarangMod($status);
       }
       
       $this->load->view('UI/HistoryBarang', $getData);
